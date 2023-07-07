@@ -1,0 +1,637 @@
+openapi: '3.0.2'
+info:
+  title: API Web 2514 2023-1
+  version: '1.0'
+servers:
+  - url: http://localhost:3000
+    description: Development server
+paths:    
+  /game/create:      
+    post:
+      tags:
+        - CreateGame
+      summary: Creates game with list of user ids
+      description: ''
+      operationId: createGameFromUserIds
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userIds:
+                  type: array
+                  items:
+                    type: integer
+                    format: int64
+              required:
+                - userIds
+              example:
+                userIds: [1, 2, 3]
+      responses:
+        '400':
+          description: Invalid parameters
+        '200':
+          description: OK
+  /game/{id}:
+    get:
+      tags:
+        - ShowGame
+      summary: Shows information about a game by id
+      description: ''
+      operationId: ShowGameFromId
+      parameters:
+        - name: id
+          in: path
+          description: Game id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '201':
+          description: OK
+        '400':
+          description: Invalid id
+  /game/{id}/players:
+    get:
+      tags:
+        - ShowGame
+      summary: Returns list of players of a game by id
+      description: ''
+      operationId: ShowGamePlayersFromId
+      parameters:
+        - name: id
+          in: path
+          description: Game id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid id
+  /game/{id}/players_alive:
+    get:
+      tags:
+        - ShowGame
+      summary: Returns list of players that havent lost (still have cities) of a game by id
+      description: ''
+      operationId: ShowGameAlivePlayersFromId
+      parameters:
+        - name: id
+          in: path
+          description: Game id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid id
+  /game/{id}/player_in_turn:
+    get:
+      tags:
+        - ShowGame
+      summary: Returns player in turn of a game by id
+      description: ''
+      operationId: ShowGamePlayerInTurnFromId
+      parameters:
+        - name: id
+          in: path
+          description: Game id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid id
+  /game/{id}/cities:
+    get:
+      tags:
+        - ShowGame
+      summary: Returns cities of a game by id
+      description: ''
+      operationId: ShowGameCitiesFromId
+      parameters:
+        - name: id
+          in: path
+          description: Game id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid id
+  /game/{id}/warriors:
+    get:
+      tags:
+        - ShowGame
+      summary: Returns warriors of a game by id
+      description: ''
+      operationId: ShowGameWarriorsFromId
+      parameters:
+        - name: id
+          in: path
+          description: Game id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid id
+  /game/{id}/gold_tiles:
+    get:
+      tags:
+        - ShowGame
+      summary: Returns gold tiles of a game by id
+      description: ''
+      operationId: ShowGameGoldTilesFromId
+      parameters:
+        - name: id
+          in: path
+          description: Game id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid id
+  /player/{id}:
+    get:
+      tags:
+        - ShowPlayer
+      summary: Returns player by id
+      description: ''
+      operationId: ShowPlayerFromId
+      parameters:
+        - name: id
+          in: path
+          description: Player id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid id
+  /player/{id}/cities:
+    get:
+      tags:
+        - ShowPlayer
+      summary: Returns list of cities by player id
+      description: ''
+      operationId: ShowPlayerCitiesFromId
+      parameters:
+        - name: id
+          in: path
+          description: Player id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid id
+  /player/{id}/warriors:
+    get:
+      tags:
+        - ShowPlayer
+      summary: Returns list of warriors by player id
+      description: ''
+      operationId: ShowPlayerWarriorsFromId
+      parameters:
+        - name: id
+          in: path
+          description: Player id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid id
+  /player/{id}/available_warriors:
+    get:
+      tags:
+        - ShowPlayer
+      summary: Returns list of warriors that can move by player id
+      description: ''
+      operationId: ShowPlayerAvailableWarriorsFromId
+      parameters:
+        - name: id
+          in: path
+          description: Player id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid id
+  /game/{id}/start_turn:
+    get:
+      tags:
+        - GameActions
+      summary: All warriors can move and collects gold for every city based on level
+      description: ''
+      operationId: StartGameTurnFromId
+      parameters:
+        - name: id
+          in: path
+          description: Game id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid id
+  /game/{id}/end_turn:
+    get:
+      tags:
+        - GameActions
+      summary: Changes the player in turn and starts the next turn
+      description: ''
+      operationId: EndGameTurnFromId
+      parameters:
+        - name: id
+          in: path
+          description: Game id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid id
+  /game/{id}/buy_warrior:
+    post:
+      tags:
+        - PlayerActions
+      summary: Buys warrior by game id in path, and city id in body
+      description: ''
+      operationId: BuyWarriorFromGameAndCityId
+      parameters:
+        - name: id
+          in: path
+          description: Game id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                cityId:
+                  type: integer
+                  format: int64
+              required:
+                - cityId
+              example:
+                cityId: 3
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid id
+  /game/{id}/warrior/{warriorId}/options:
+    get:
+      tags:
+        - PlayerActions
+      summary: Gets warrior possible actions by game and warrior id
+      description: ''
+      operationId: GetWarriorOptionsFromGameAndWarriorIds
+      parameters:
+        - name: warriorId
+          in: path
+          description: Warrior id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+        - name: id
+          in: path
+          description: Game id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid id
+  /game/{id}/build_city:
+    post:
+      tags:
+        - PlayerActions
+      summary: Builds city using game and warrior id
+      description: ''
+      operationId: BuildCityFromGameAndWarriorIds
+      parameters:
+        - name: id
+          in: path
+          description: Game id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                warriorId:
+                  type: integer
+                  format: int64
+              required:
+                - warriorId
+              example:
+                warriorId: 1
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid id
+  /game/{id}/level_city:
+    post:
+      tags:
+        - PlayerActions
+      summary: Levels city up using warrior id
+      description: ''
+      operationId: LevelCityFromWarriorId
+      parameters:
+        - name: id
+          in: path
+          description: Game id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                warriorId:
+                  type: integer
+                  format: int64
+              required:
+                - warriorId
+              example:
+                warriorId: 1
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid id
+  /game/{id}/warrior/{warriorId}/move:
+    put:
+      tags:
+        - PlayerActions
+      summary: Moves warrior to new position
+      description: ''
+      operationId: LevelCityFromWarriorId
+      parameters:
+        - name: id
+          in: path
+          description: Game id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+        - name: warriorId
+          in: path
+          description: Warrior id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                move:
+                  type: array
+                  items:
+                    type: integer
+                    format: int64
+              required:
+                - move
+              example:
+                move: [5, 6]
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid id
+  /game/{id}/warrior/{warriorId}/attack:
+    post:
+      tags:
+        - PlayerActions
+      summary: Warrior attacks position
+      description: ''
+      operationId: AttackPositionFromWarriorId
+      parameters:
+        - name: id
+          in: path
+          description: Game id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+        - name: warriorId
+          in: path
+          description: Warrior id
+          required: true
+          schema:
+            type: integer
+            format: int64
+            example: 1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                attack:
+                  type: array
+                  items:
+                    type: integer
+                    format: int64
+              required:
+                - attack
+              example:
+                attack: [1, 1]
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid id
+  /warrior/create:
+    post:
+      tags:
+        - CreateWarrior
+      summary: Create Warrior with all attributes
+      description: ''
+      operationId: CreateWarrior
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                gameId:
+                  type: integer
+                  format: int64
+                playerId:
+                  type: integer
+                  format: int64
+                x:
+                  type: integer
+                  format: int64
+                y:
+                  type: integer
+                  format: int64
+                level:
+                  type: integer
+                  format: int64
+                canMove:
+                  type: boolean
+              required:
+                - gameId
+                - playerId
+                - x
+                - y
+                - level
+                - canMove
+              example:
+                gameId: 1
+                playerId: 1
+                x: 5
+                y: 6
+                level: 2
+                canMove: true
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid id
+  /signup:
+    post:
+      tags:
+        - User
+      summary: Create User with username, email, password
+      description: ''
+      operationId: Signup
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                username:
+                  type: string
+                password:
+                  type: string
+              required:
+                - email
+                - username
+                - password
+              example:
+                email: rey@moneo.cl
+                username: reydelmoneo
+                password: moneoafondo
+                
+      responses:
+        '201':
+          description: OK
+        '400':
+          description: Invalid id
+  /login:
+    post:
+      tags:
+        - User
+      summary: Login with email, password
+      description: ''
+      operationId: Login
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+              required:
+                - email
+                - password
+              example:
+                email: rey@moneo.cl
+                password: moneoafondo
+      responses:
+        '200':
+          description: OK
+        '400':
+          description: Invalid id

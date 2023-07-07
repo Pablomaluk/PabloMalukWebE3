@@ -1,0 +1,19 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+.about-profile {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+}
+
+.about-profile {
+    display: flex;
+    flex-direction: column;
+    justify-items: center;
+}
+
+.about-profile img {
+    width: 10%;
+}

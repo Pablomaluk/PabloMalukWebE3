@@ -1,0 +1,22 @@
+.map {
+    display: grid;
+    width: 800px;
+    height: 600px;
+    grid-template-columns: repeat(10, 1fr);
+    background-color: rgba(125, 216, 125, 0.7);
+    opacity: 1;
+}
+
+.map-tile {
+    width: 80px;
+    height: 60px;
+    border: 2px solid black;
+    opacity: 1;
+}
+
+.selected-map-tile {
+    width: 80px;
+    height: 60px;
+    border: 4px solid white;
+    opacity: 1;
+}
