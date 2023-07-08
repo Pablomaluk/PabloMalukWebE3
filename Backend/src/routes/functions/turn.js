@@ -46,10 +46,4 @@ router.get("turn.end", "/:gameId/end_turn", async (ctx) => {
 });
 
 
-async function changePlayerInTurn(game){
-    let playerInTurn = (game.playerInTurn+1) % game.playersCount;
-    return await game.update( {playerInTurn} );
-};
-
-
 module.exports = router;

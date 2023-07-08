@@ -65,40 +65,42 @@ html, body, #root, main {
 }
 
 
-.forms-and-buttons-container {
+.forms-container {
   position: relative;
   display: grid;
+  grid-template-rows: 20% 20% 15% 45%;
   background-color: maroon;
   border: solid 2px lightgrey;
   border-radius: 10px;
   align-items: center;
   min-width: 240px;
-  min-height: 190px;
-  top:45%;
-  height: 26%;
-  width: 16%;
+  min-height: 220px;
+
+  max-width: 240px;
+  max-height: 200px;
 
   margin-left: auto;
   margin-right: auto;
-  margin-bottom: 500px;
+  margin-bottom: 160px;
 
   grid-template-columns: 40% 60%;
-  grid-template-rows: 18% 25% 33%;
   padding-left: 3%;
   padding-right: 7%;
   padding-top: 4%;
 }
 
-.forms-and-buttons-container button {
+.forms-container button {
   background-color: #3b3b3b;
   color: lightgray;
   border: solid 1px;
   border-color: lightgrey;
   border-radius: 4px;
   font-family: trajan;
-  margin-top: 50px;
-  width: 50%;
+  width: 60%;
   height: 100%;
+  margin-left: 30px;
+  margin-right: auto;
+  padding-block: 10px;
 }
 
 /*
@@ -113,7 +115,7 @@ html, body, #root, main {
   
 }*/
 
-.forms-and-buttons-container input {
+.forms-container input {
   width: 100%;
   margin-left: 0px;
   font-size: 16px;
@@ -125,7 +127,7 @@ html, body, #root, main {
   color: white;
 }
 
-.forms-and-buttons-container .text {
+.forms-container .text {
   margin-right: 0px;
   font-family: trajan;
   color: lightgrey;

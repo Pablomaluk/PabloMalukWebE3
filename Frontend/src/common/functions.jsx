@@ -8,4 +8,14 @@ function IterateOverArrayAndReturnTileElements(array, x, y){
     return matches;
 }
 
-export {IterateOverArrayAndReturnTileElements};
+function GetAvailableWarriors(warriorsArray){
+    let availableWarriors = [];
+    for (let warrior of warriorsArray){
+        if (warrior.canMove){
+            availableWarriors.push(warrior);
+        }
+    }
+    return availableWarriors;
+}
+
+export {IterateOverArrayAndReturnTileElements, GetAvailableWarriors};

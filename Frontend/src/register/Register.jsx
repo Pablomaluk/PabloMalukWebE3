@@ -7,13 +7,15 @@ import logo from '../imgs/small_logo.png'
 function FormsAndButtons() {
   return (
   <>
-  <div className="forms-and-buttons-container">
+  <div className="forms-container">
+    <div><h4 className="text" style={{marginTop: '25px', alignSelf: 'bottom'}} >Email:</h4></div>
+    <div style={{marginTop: 'auto'}}><input></input></div>
     <div><h4 className="text">Username:</h4></div>
     <div><input></input></div>
     <div><h4 className="text">Password:</h4></div>
     <div><input></input></div>
     <div></div>
-    <div><button className="login-button">Login</button>
+    <div>
          <button className="register-button">Register</button>
     </div>
   </div>

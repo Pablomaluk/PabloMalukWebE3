@@ -1,37 +1,30 @@
 const { Op } = require("sequelize");
 
+// Confirmed useful & working
+
 function popRandom(array) {
     let i = (Math.random() * array.length) | 0;
     return array.splice(i, 1)[0];
 };
 
-// Turn
 async function getPlayerInTurn(game){
     let player = await game.getPlayers( 
         {where: { gamePlayerNumber: game.playerInTurn }
     });
     return player[0];
-}
+};
 
 async function startTurn(game){
     let player = await getPlayerInTurn(game);
     let warriors = await resetPlayerWarriors(player);
     let goldCollected = await collectCityGold(player);
     return {player, warriors, ...goldCollected};
-}
+};
 
 async function resetPlayerWarriors(player){
     let warriors = await player.getWarriors();
     for (let warrior of warriors){
         await warrior.update( { canMove: true } );
-    }
-    return warriors;
-};
-
-async function blockPlayerWarriors(player){
-    let warriors = await player.getWarriors();
-    for (let warrior of warriors){
-        await warrior.update( { canMove: false } );
     }
     return warriors;
 };
@@ -46,62 +39,9 @@ async function collectCityGold(player){
     return {cities, goldCollected};
 };
 
-// Game warriors
-async function getAvailableWarriors(player){
-    return await player.getWarriors({where: {canMove: true}});
-}
-
-async function getAvailableWarriorsInTile(player, x, y){
-    return await player.getWarriors({
-        where: {x, y, canMove: true}
-    });
-}
-
-async function getEnemyWarriorsInTile(game, player, x, y){
-    return await game.getWarriors({
-        where: {x, y, playerId: {[Op.ne]: player.id}}
-    })
-}
-
-// Cities
-
-async function getEnemyCitiesInTile(game, player, x, y){
-    return await game.getCities(
-        {where: {x, y, playerId: {[Op.ne]: player.id}}
-    })
-};
-
-// Tiles
-
-function getAdjacentTiles(game, x, y){
-    let tiles = [];
-    if (checkIfTileIsInMap(game, x-1, y)){
-        tiles.push([x-1, y]);
-    }
-    if (checkIfTileIsInMap(game, x+1, y)){
-        tiles.push([x+1, y]);
-    }
-    if (checkIfTileIsInMap(game, x, y-1)){
-        tiles.push([x, y-1]);
-    }
-    if (checkIfTileIsInMap(game, x, y+1)){
-        tiles.push([x, y+1]);
-    }
-    return tiles;
-}
-
 function checkIfTileIsInMap(game, x, y){
     return x >= 0 && x < game.boardSize && y >= 0 && y < game.boardSize;
-}
-
-async function checkIfTileContainsEnemyUnits(game, player, x, y){
-    let enemyWarriors = await getEnemyWarriorsInTile(game, player, x, y);
-    let enemyCity = await getEnemyCitiesInTile(game, player, x, y);
-
-    return enemyWarriors.length > 0 || enemyCity.length > 0;
-}
-
-// Play
+};
 
 async function checkPlayerGameOver(player){
     if (player.gameOver){
@@ -130,7 +70,33 @@ async function checkGameOver(game){
     return false;
 }
 
-// Checks
+function checkCityOptionsCost(city){
+    let upgradeCost;
+    if (city.level < 5){
+        upgradeCost = (city.level+1)*100;
+    };
+    let warriorCost = city.level * 15;
+    return {upgradeCost, warriorCost};
+}
+
+async function verifyPlayerIsInTurn(player){
+    let game = await player.getGame();
+    if (game.playerInTurn != player.gamePlayerNumber){
+        throw new Error("Player is not in turn");
+    };
+}
+
+// Will need changing or deleting
+
+async function getAvailableWarriors(player){
+    return await player.getWarriors({where: {canMove: true}});
+}
+
+async function getAvailableWarriorsInTile(player, x, y){
+    return await player.getWarriors({
+        where: {x, y, canMove: true}
+    });
+}
 
 async function checkIfGameIdIsValid(orm, gameId){
     let game = await orm.Game.findByPk(gameId);
@@ -144,7 +110,8 @@ async function checkIfGameIdIsValid(orm, gameId){
 };
 
 async function checkIfPlayerIdIsValid(orm, playerId){
-    let player = await orm.Player.findByPk(playerId);
+    let player = await orm.Player.findByPk(playerId,
+        {attributes: {exclude: ["createdAt", "updatedAt"]}});
     if (!player){
         throw new Error("Player id isnt valid");
     }
@@ -182,8 +149,6 @@ async function checkIfCityIdIsValid(orm, game, cityId){
 }
 
 
-module.exports = {popRandom, getPlayerInTurn, getAdjacentTiles, 
-    getEnemyWarriorsInTile, getEnemyCitiesInTile, checkIfTileContainsEnemyUnits,
+module.exports = {popRandom, getPlayerInTurn, checkIfTileIsInMap, verifyPlayerIsInTurn,
     checkPlayerGameOver, checkGameOver, checkIfGameIdIsValid, checkIfWarriorIdIsValid,
-    checkIfPlayerIdIsValid, startTurn, resetPlayerWarriors, blockPlayerWarriors,
-    collectCityGold, checkIfCityIdIsValid};
+    checkIfPlayerIdIsValid, checkIfCityIdIsValid, checkCityOptionsCost, startTurn};

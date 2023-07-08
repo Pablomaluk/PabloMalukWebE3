@@ -8,16 +8,16 @@ import Rules from "./backup/instructions/rules/rules"
 import Training from "./backup/instructions/rules/training"
 import Login from  "./login/Login"
 import About from "./about/About"
-import Map from "./map/Map"
 import Game from "./game/Game"
-
+import Register from "./register/Register"
 
 function Routing() {
     return(
         <>
         <BrowserRouter>
             <Routes>
-                <Route path={'/map'} element={<Map/>}/>
+                <Route path={'/login'} element={<Login/>}/>
+                <Route path={'/register'} element={<Register/>}/>
                 <Route path={'/game'} element={<Game/>}/>
                 <Route path={'/about'} element={<About/>}/>
                 <Route path={'/instructions'} element={<Instructions/>}/>

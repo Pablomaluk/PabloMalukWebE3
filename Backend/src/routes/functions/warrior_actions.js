@@ -35,65 +35,6 @@ router.get("warrior.check_turn_options", "/:gameId/warrior/:warriorId/options", 
     }
 });
 
-async function checkIfWarriorCanBuildCity(game, player, warrior){
-    if (player.gamePlayerNumber != game.playerInTurn){
-        throw new Error("Warrior not in turn");
-    }
-    if (!warrior.canMove){
-        throw new Error("Warrior cant move");
-    }
-    if (player.gold < 100){
-        throw new Error("Player doesnt have enough gold");
-    }
-    let warriorIsInCity = await player.getCities({where: {x: warrior.x, y: warrior.y}})
-                                  .then(cities => cities.length);
-    if (warriorIsInCity){
-        throw new Error("There is already a city in the warrior's position");
-    }
-};
-
-async function checkIfWarriorCanLevelCity(game, player, warrior){
-    let warriorIsInCity = await player.getCities({where: {x: warrior.x, y: warrior.y}})
-                                  .then(cities => cities.length);
-    if (!warriorIsInCity){ 
-        throw new Error("Warrior is not inside a city"); 
-    }
-    if (player.gamePlayerNumber != game.playerInTurn){
-        throw new Error("Warrior not in turn");
-    }
-    if (!warrior.canMove){
-        throw new Error("Warrior cant move");
-    }
-    let city = await player.getCities({where: {x: warrior.x, y: warrior.y}});
-    city = city[0];
-
-    if (player.gold < ((city.level+1) * 100)){
-        throw new Error("Player doesnt have enough gold");
-    }
-    if (city.level == 5){
-        throw new Error("City is max level");
-    }
-    if (city.level > warrior.level){
-        throw new Error("Warrior level is too low to upgrade city");
-    }
-    return city;
-};
-
-async function checkWarriorMoves(game, player, warrior){
-    const adjacentTiles = getAdjacentTiles(game, warrior.x, warrior.y);
-    const tilesThatCanBeMovedTo = [[warrior.x, warrior.y]];
-    const tilesThatCanBeAttacked = [];
-
-    for (let tile of adjacentTiles){
-        if (await checkIfTileContainsEnemyUnits(game, player, tile[0], tile[1])){
-            tilesThatCanBeAttacked.push(tile);
-        } else {
-            tilesThatCanBeMovedTo.push(tile);
-        }
-    }
-
-    return {moves: tilesThatCanBeMovedTo, attacks: tilesThatCanBeAttacked};
-};
 
 router.post("warrior.build_city", "/:gameId/build_city", async (ctx) => {
     try{
@@ -180,28 +121,6 @@ router.put("warrior.move", "/:gameId/warrior/:warriorId/move", async (ctx) => {
     }
 });
 
-async function moveWarriorToTile(game, warrior, x, y){
-    const player = await warrior.getPlayer();
-    let collectedGold = await collectGoldTile(game, player, x, y);
-    console.log(collectedGold);
-    await warrior.update({x, y, canMove: false});
-    console.log({warrior, ...collectedGold});
-    return {warrior, ...collectedGold}
-};
-
-async function collectGoldTile(game, player, x, y){
-    const goldTiles = await game.getGold({where: {x, y}});
-    let collectedGold = 0;
-    for (let goldTile of goldTiles){
-        collectedGold += goldTile.amount;
-        await player.update({gold: player.gold + goldTile.amount});
-        await goldTile.destroy();
-    }
-    if (collectedGold){
-        return {collectedGold};
-    }
-    
-}
 
 router.post("warrior.attack", "/:gameId/warrior/:warriorId/attack", async (ctx) => {
     try{
@@ -231,76 +150,6 @@ router.post("warrior.attack", "/:gameId/warrior/:warriorId/attack", async (ctx) 
         }
         throw new Error("Attack is not valid");
 
-    } catch(error) {
-        console.log(error);
-        ctx.body = error.message;
-        ctx.status = 400;
-    }
-});
-
-async function attackTile(game, player, warrior, x, y){
-    let enemyWarriors = await getEnemyWarriorsInTile(game, player, x, y);
-    if (enemyWarriors.length == 0){
-        let city = await stealCity(game, player, x, y);
-        await moveWarriorToTile(game, warrior, x, y);
-        return {result: "City Stolen", city};
-    }
-
-    let enemyWarrior = popRandom(enemyWarriors);
-    if (warrior.level > enemyWarrior.level){
-        await enemyWarrior.destroy();
-        await warrior.update({canMove: false});
-        return {result: "Attack successful. Enemy warrior was killed", winner: warrior};
-
-    } else if (warrior.level == enemyWarrior.level){
-        await warrior.destroy();
-        await enemyWarrior.destroy();
-        return {result: "Draw. Both warriors were killed"};
-
-    } else {
-        await warrior.destroy();
-        return {result: "Attack failed. Warrior was killed", winner: enemyWarrior};
-    }
-    
-}
-
-async function stealCity(game, player, x, y){
-    let enemyCities = await getEnemyCitiesInTile(game, player, x, y);
-    if (enemyCities.length == 0){ 
-        throw new Error("No enemy cities to steal"); 
-    };
-    let city = enemyCities[0];
-    let enemy = await city.getPlayer();
-    await city.update({playerId: player.id});
-    if (await checkPlayerGameOver(enemy)){
-        if (await checkGameOver(game)){
-            await game.update({gameOver: true});
-            throw new Error("Game over");
-        }
-    };
-    return city;
-}
-
-router.post("turn.buy_warrior", "/:gameId/buy_warrior", async (ctx) => {
-    try {
-        if (!ctx.request.body.cityId){
-            throw new Error("City id not provided");
-        }
-        const game = await checkIfGameIdIsValid(ctx.orm, ctx.params.gameId);
-        const city = await checkIfCityIdIsValid(ctx.orm, game, ctx.request.body.cityId);
-        const player = await getPlayerInTurn(game);
-
-        if (player.gold >= city.level * 15){
-            const warrior = await ctx.orm.Warrior.create({
-                x: city.x, y: city.y, gameId: game.id, playerId: player.id,
-                level: city.level});
-            let cost = city.level * 15;
-            await player.update( { gold: player.gold - cost } ); 
-            ctx.response.body = {warrior, cost, gold: player.gold};
-            ctx.status = 201;   
-        } else {
-            throw new Error("Not enough gold");
-        };
     } catch(error) {
         console.log(error);
         ctx.body = error.message;
