@@ -1,29 +1,23 @@
-const Router = require("koa-router");
 const { popRandom, startTurn } = require("./common.js");
 
-const router = new Router();
-
-router.post("create_players_and_game_from_user_ids", "/create", async (ctx) => {
-    const { userIds } = ctx.request.body;
+async function createGameAndUpdateLobby({orm, lobby}){
+    let userIds = getLobbyUsers(lobby);
     const boardSize = 10;
-    const orm = ctx.orm;
-    try {
-        if (!userIds){
-            throw new Error("Endpoint requires user ids and board size");
-        }
+    const game = await createGame(orm, userIds, boardSize);
+    const players = await createPlayers(orm, userIds, game.id);
+    await createStartingBoard(orm, game.id, players, boardSize);
+    await startTurn(game);
+    await lobby.update({gameId: game.id});
+};
 
-        const game = await createGame(orm, userIds, boardSize);
-        const players = await createPlayers(orm, userIds, game.id);
-        const tiles = await createStartingBoard(orm, game.id, players, boardSize);
-        await startTurn(game);
-        ctx.response.body = {game, players, tiles};
-        ctx.status = 201;
-    } catch(error) {
-        console.log(error);
-        ctx.response.body = error.message;
-        ctx.status = 400;
-    }
-});
+function getLobbyUsers(lobby){
+    let userIds = [];
+    if (lobby.userId1) userIds.push(lobby.userId1);
+    if (lobby.userId2) userIds.push(lobby.userId2);
+    if (lobby.userId3) userIds.push(lobby.userId3);
+    if (lobby.userId4) userIds.push(lobby.userId4);
+    return userIds;
+}
 
         
 async function createGame(orm, userIds, boardSize){
@@ -139,4 +133,4 @@ async function createInitialWarriors(orm, gameId, players, boardSize){
     return warriors;
 };
 
-module.exports = router;
+module.exports = createGameAndUpdateLobby;

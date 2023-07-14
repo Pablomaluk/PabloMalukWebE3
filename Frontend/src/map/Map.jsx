@@ -1,26 +1,27 @@
 import './styles.css';
-import { useState, useEffect, useContext } from 'react';
+import { useState, useContext } from 'react';
+import {GetAvailableWarriors, IterateOverArrayAndReturnTileElements, 
+        handleFetch} from '../common/functions';
+import { useInterval } from 'usehooks-ts'
 import MapTile from './MapTile';
-import {GetAvailableWarriors, IterateOverArrayAndReturnTileElements} from '../common/functions';
-import {UpdateContext} from '../common/context';
-import axios from 'axios';
+import { GameContext, AuthContext } from '../common/context';
 
 
 function MapTiles() {
   const [mapTiles, setMapTiles] = useState(null);
   const boardSize = 10;
-  const gameId = 1;
-  const playerId = 1;
-  const {updateVar} = useContext(UpdateContext);
+  const {gameId} = useContext(GameContext);
+  const {token} = useContext(AuthContext);
 
-  useEffect(() => {
-    axios.get(`${import.meta.env.VITE_API_URL}/game/${gameId}/player/${playerId}/board-info`)
+  useInterval(async () => {
+    let route = `game/${gameId}/board-info`;
+    await handleFetch({method: "get", route, token})
     .then((response) => {
       setMapTiles(generateMapTiles(boardSize, response.data));
     }).catch((error)=>{
       console.log(error);
     });
-  }, [updateVar]);
+  }, 300);
 
   if (mapTiles){
     

@@ -1,22 +1,24 @@
 import "./styles.css"
-import { useContext, useState, useEffect } from 'react';
-import axios from 'axios';
-import {SelectedUnitContext, UpdateContext} from "../common/context";
+import { useContext, useState } from 'react';
+import { SelectedUnitContext, AuthContext } from "../common/context";
 import WarriorList from "./WarriorList";
+import { handleFetch } from "../common/functions";
+import { useInterval } from 'usehooks-ts'
 
 function CityOptions({city}){
     const [cityOptions, setCityOptions] = useState(null);
     const {setSelectedUnit} = useContext(SelectedUnitContext);
-    const {updateVar, Update} = useContext(UpdateContext);
+    const {token} = useContext(AuthContext);
 
-    useEffect(() => {
-        axios.get(`${import.meta.env.VITE_API_URL}/city/${city.id}/options`)
-        .then((response) => {
+    useInterval(() => {
+        let route = `city/${city.id}/options`;
+        handleFetch({method: 'get', route, token}
+        ).then((response) => {
           setCityOptions(response.data);
         }).catch((error)=>{
           console.log(error);
         });
-      }, [updateVar]);
+      }, 300);
 
       function UpgradeButton({upgradeCost, playerCanUpgradeCity, city}){
         if (playerCanUpgradeCity){
@@ -37,13 +39,11 @@ function CityOptions({city}){
     }
 
     function handleUpgradeClick(){
-        axios.post(`${import.meta.env.VITE_API_URL}/city/${city.id}/level-up`
-        ).then(()=>Update());
+        handleFetch({method: 'post', route: `city/${city.id}/level-up`, token});
     }
 
     function handleBuyWarriorClick(){
-        axios.post(`${import.meta.env.VITE_API_URL}/city/${city.id}/buy-warrior`
-        ).then(()=>Update());
+        handleFetch({method: 'post', route: `city/${city.id}/buy-warrior`, token});
     };
 
     if (cityOptions){
@@ -52,13 +52,14 @@ function CityOptions({city}){
         return (
         <div>
         <div className="player-info">
-        <div style={
-            {gridColumn: 'span 2', marginLeft: 'auto', marginRight: 'auto',
-            color: 'black', paddingLeft: '20px', paddingRight: '20px', height: '40px'}
-            }><h3>City Level {city.level}</h3>
-        </div>
-        <UpgradeButton upgradeCost={upgradeCost} playerCanUpgradeCity={playerCanUpgradeCity} city={city}/>
-        <BuyWarriorButton warriorCost={warriorCost} playerCanBuyWarrior={playerCanBuyWarrior} city={city}/>
+            <div style={
+                {gridColumn: 'span 2', marginLeft: 'auto', marginRight: 'auto',
+                marginBottom: '20px',
+                color: 'black', paddingLeft: '20px', paddingRight: '20px', height: '40px'}
+                }><h3>City Level {city.level}</h3>
+            </div>
+            <UpgradeButton upgradeCost={upgradeCost} playerCanUpgradeCity={playerCanUpgradeCity} city={city}/>
+            <BuyWarriorButton warriorCost={warriorCost} playerCanBuyWarrior={playerCanBuyWarrior} city={city}/>
         </div>
         <WarriorList warriors={warriors} availableWarriors={availableWarriors}/>
         </div>)}

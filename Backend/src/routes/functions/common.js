@@ -1,6 +1,7 @@
 const { Op } = require("sequelize");
+const jwt = require("jsonwebtoken");
 
-// Confirmed useful & working
+// Used & Working
 
 function popRandom(array) {
     let i = (Math.random() * array.length) | 0;
@@ -86,16 +87,31 @@ async function verifyPlayerIsInTurn(player){
     };
 }
 
-// Will need changing or deleting
-
-async function getAvailableWarriors(player){
-    return await player.getWarriors({where: {canMove: true}});
+async function checkIfPlayerIsInTurn(player){
+    let game = await player.getGame();
+    return game.playerInTurn == player.gamePlayerNumber;
 }
 
-async function getAvailableWarriorsInTile(player, x, y){
-    return await player.getWarriors({
-        where: {x, y, canMove: true}
-    });
+// Requests Verifications
+
+function getUserIdFromToken(ctx){
+    let token = ctx.request.header.authorization.split(" ")[1];
+    let decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (decoded && decoded.sub){
+        return parseInt(decoded.sub);
+    }
+    throw new Error("Token is not valid");
+}
+
+async function getPlayerFromGameAndUserId(orm, gameId, userId){
+    await checkIfGameIdIsValid(orm, gameId);
+    let player = await orm.Player.findOne({
+        where: { gameId, userId }
+    })
+    if (!player){
+        throw new Error("User is not in this game");
+    }
+    return player;
 }
 
 async function checkIfGameIdIsValid(orm, gameId){
@@ -106,16 +122,6 @@ async function checkIfGameIdIsValid(orm, gameId){
     if (game.gameOver){
         throw new Error("Game has already finished");
     }
-    return game;
-};
-
-async function checkIfPlayerIdIsValid(orm, playerId){
-    let player = await orm.Player.findByPk(playerId,
-        {attributes: {exclude: ["createdAt", "updatedAt"]}});
-    if (!player){
-        throw new Error("Player id isnt valid");
-    }
-    return player;
 };
 
 async function checkIfWarriorIdIsValid(orm, game, warriorId){
@@ -151,4 +157,5 @@ async function checkIfCityIdIsValid(orm, game, cityId){
 
 module.exports = {popRandom, getPlayerInTurn, checkIfTileIsInMap, verifyPlayerIsInTurn,
     checkPlayerGameOver, checkGameOver, checkIfGameIdIsValid, checkIfWarriorIdIsValid,
-    checkIfPlayerIdIsValid, checkIfCityIdIsValid, checkCityOptionsCost, startTurn};
+    checkIfCityIdIsValid, checkCityOptionsCost, startTurn,
+    getUserIdFromToken, getPlayerFromGameAndUserId, checkIfPlayerIsInTurn};

@@ -33,6 +33,18 @@ paths:
           description: Invalid parameters
         '200':
           description: OK
+  /lobby/show:      
+    get:
+      tags:
+        - CreateGame
+      summary: Gets lobby info
+      description: ''
+      operationId: getLobbyInfo
+      responses:
+        '400':
+          description: Failed
+        '200':
+          description: OK
   /game/{id}:
     get:
       tags:

@@ -1,5 +1,6 @@
 const Router = require('koa-router');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 const dotenv = require('dotenv');
 
 dotenv.config();
@@ -11,32 +12,36 @@ router.post("authentication.signup", "/signup", async (ctx) =>{
         if (!email || !username || !password) {
             throw new Error("Missing fields");
         }
-        let user = await checkIfUserExists(ctx.orm, email)
+        let user = await checkIfUserExists(ctx.orm, username)
         if (user){
-            throw new Error(`Email ${email} already in use`);
+            throw new Error(`Username ${username} already in use`);
         }
-        user = await ctx.orm.User.create({email, username, password});
+        let hashedPassword = await bcrypt.hash(password, 10);
+        user = await ctx.orm.User.create({email, username, hashedPassword});
         ctx.status = 201;
         ctx.body = {username, email};
     } catch (error) {
         ctx.body = { error: error.message };
+        console.log(error.message);
         ctx.status = 400;
     }
 })
 
 router.post("authentication.login", "/login", async (ctx) =>{
-    const { email, password } = ctx.request.body;
+    const { username, password } = ctx.request.body;
     try {
-        if (!email || !password) {
+        if (!username || !password) {
             throw new Error("Missing fields");
         }
-        let user = await checkIfUserExists(ctx.orm, email)
+        let user = await checkIfUserExists(ctx.orm, username)
         if (!user){
             console.log(user);
-            throw new Error(`Email ${email} not found`);
+            throw new Error(`Username ${username} not found`);
         }
+        let hashedPassword = user.password;
+        let passwordIsCorrect = await bcrypt.compare(password, hashedPassword);
 
-        if (user.password != password){
+        if (!passwordIsCorrect){
             throw new Error(`Incorrect password`);
         }
 
@@ -45,12 +50,13 @@ router.post("authentication.login", "/login", async (ctx) =>{
         
     } catch (error) {
         ctx.body = { error: error.message };
+        console.log(error.message);
         ctx.status = 400;
     }
 })
 
-async function checkIfUserExists(orm, email){
-    let user = await orm.User.findOne({ where: { email } });
+async function checkIfUserExists(orm, username){
+    let user = await orm.User.findOne({ where: { username } });
     console.log(user);
     if (user){
         return user;

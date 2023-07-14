@@ -26,9 +26,6 @@ module.exports = (sequelize, DataTypes) => {
           if (value.length < 8){
             throw new Error("Password must contain at least 8 characters")
           }
-          if (value.length > 20){
-            throw new Error("Password can't contain more than 20 characters")
-          }
         },
       }
     },

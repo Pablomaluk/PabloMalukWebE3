@@ -1,6 +1,6 @@
 import './styles.css';
 import { useState, useEffect, useContext } from 'react';
-import { SelectedUnitContext, SelectedTileContext, UpdateContext } from '../common/context.jsx';
+import { SelectedUnitContext, SelectedTileContext } from '../common/context.jsx';
 import goldImg from '../imgs/gold.png';
 import cityImg from '../imgs/city.png';
 import warriorImg from '../imgs/warrior.png';
@@ -15,7 +15,6 @@ function MapTile({ mapTile }) {
   const [img, setImg] = useState(null);
   const {selectedUnit, setSelectedUnit} = useContext(SelectedUnitContext);
   const {selectedTile, setSelectedTile} = useContext(SelectedTileContext);
-  const {updateVar, Update} = useContext(UpdateContext);
   const {tileWarriors, tileAvailableWarriors, tileCities, tileEnemyWarriors, tileEnemyCities, tileGold} = mapTile.content;
   const key = mapTile.id;
 
@@ -23,15 +22,12 @@ function MapTile({ mapTile }) {
     if (city){
       setSelectedTile(key);
       setSelectedUnit({city: tileCities[0]});
-      Update()
     } else if (tileWarriors.length){
       setSelectedTile(key);
       setSelectedUnit({warriors: tileWarriors, availableWarriors: tileAvailableWarriors});
-      Update();
     } else {
       setSelectedTile(null);
       setSelectedUnit(null);
-      Update()
     }
     
   }
@@ -73,7 +69,7 @@ function MapTile({ mapTile }) {
       setUnit(null);
       setImg(null);
     }
-  }, [mapTile, updateVar]);
+  }, [mapTile]);
 
   if (selectedTile == key && (unit == "city" || unit == "warrior")){
     return (<div className="selected-map-tile" onClick={

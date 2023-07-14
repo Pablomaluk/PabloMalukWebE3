@@ -1,13 +1,12 @@
 import { useContext, useState, useEffect } from 'react';
-import {SelectedTileContext, SelectedUnitContext, UpdateContext,
+import {SelectedTileContext, SelectedUnitContext,
         SelectedWarriorListContext} from "../common/context";
 import warriorImg from "../imgs/warrior.png"
-
+import "./styles.css"
 
 
 function WarriorList({warriors, availableWarriors}){
     const {selectedWarriorList, setSelectedWarriorList} = useContext(SelectedWarriorListContext);
-    const {updateVar} = useContext(UpdateContext);
     const [warriorList, setWarriorList] = useState(null);
     useEffect(()=>{
         if (selectedWarriorList === "all"){
@@ -15,7 +14,7 @@ function WarriorList({warriors, availableWarriors}){
         } else {
             setWarriorList(availableWarriors);
         }
-    }, [warriors, availableWarriors, selectedWarriorList, updateVar])
+    }, [warriors, availableWarriors, selectedWarriorList])
     if (warriorList){
         return (
     <div className="warrior-list">

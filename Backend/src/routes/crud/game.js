@@ -1,6 +1,5 @@
 const Router = require("koa-router");
-const {checkIfGameIdIsValid, checkIfPlayerIdIsValid} = require("../functions/common.js");
-const { Op } = require("sequelize");
+const {checkIfGameIdIsValid} = require("../functions/common.js");
 
 const router = new Router();
 
@@ -100,35 +99,6 @@ router.get("game-warriors.list", "/:id/warriors", async (ctx) => {
     }
 });
 
-router.get("game-player.board-info", "/:id/player/:playerId/board-info", async (ctx) => {
-    try{
-        const game = await checkIfGameIdIsValid(ctx.orm, ctx.params.id);
-        const player = await checkIfPlayerIdIsValid(ctx.orm, ctx.params.playerId);
-        const playerWarriors = await player.getWarriors({
-            attributes: {exclude:["createdAt", "updatedAt"]}
-        });
-        const playerCities = await player.getCities({
-            attributes: {exclude:["createdAt", "updatedAt"]}
-        });
-        const enemyWarriors = await game.getWarriors({
-            where: {playerId: {[Op.ne]: player.id}},
-            attributes: {exclude:["createdAt", "updatedAt"]}
-        });
-        const enemyCities = await game.getCities({
-            where: {playerId: {[Op.ne]: player.id}},
-            attributes: {exclude:["createdAt", "updatedAt"]}
-        });
-        const goldTiles = await game.getGold({
-            attributes: {exclude:["createdAt", "updatedAt"]}
-        });
-        ctx.body = {playerWarriors, playerCities, enemyWarriors, enemyCities, goldTiles};
-        ctx.status = 200;
-    } catch(error) {
-        console.log(error);
-        ctx.body = error.message;
-        ctx.status = 400;
-    }
-});
 
 
 module.exports = router;

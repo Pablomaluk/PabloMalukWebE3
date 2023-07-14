@@ -1,68 +1,77 @@
 import "./styles.css"
 import { useContext, useState, useEffect } from 'react';
-import axios from 'axios';
-import {SelectedUnitContext, UpdateContext, SelectedTileContext} from '../common/context.jsx';
+import {SelectedUnitContext, SelectedTileContext, GameContext, AuthContext} from '../common/context.jsx';
 import CityOptions from './CityOptions';
 import WarriorOptions from './WarriorOptions';
 import WarriorList from "./WarriorList";
+import { handleFetch } from "../common/functions";
+import { useInterval} from 'usehooks-ts';
+
 
 function OptionsWindow(){
-    const playerId = 1;
     const [player, setPlayer] = useState(null);
     const {selectedUnit} = useContext(SelectedUnitContext);
     const {selectedTile} = useContext(SelectedTileContext);
-    const {updateVar, Update} = useContext(UpdateContext);
+    const {gameId} = useContext(GameContext);
+    const {token} = useContext(AuthContext);
 
-    useEffect(() => {
-        axios.get(`${import.meta.env.VITE_API_URL}/player/${playerId}/game-info`)
+    useInterval(async () => {
+        let route = `game/${gameId}/player-info`;
+        await handleFetch({method: "get", route, token})
         .then((response) => {
           setPlayer(response.data);
         }).catch((error)=>{
           console.log(error);
         });
-      }, [updateVar]
+      }, 300
     );
 
-    function EndTurn({player}){
-        axios.post(`${import.meta.env.VITE_API_URL}/player/${playerId}/end-turn`, {}
-        ).then(() => {Update()})
+    function EndTurn(){
+        handleFetch({method: 'post', route: `game/${gameId}/end-turn`, token})
     };
 
-    function EndTurnButton({player}){
+    function EndTurnButton(){
         return (
-            <button className="end-turn-button" onClick={() => EndTurn({player})}>End Turn</button>
+            <button className="end-turn-button" onClick={() => EndTurn()}>End Turn</button>
         )
     }
     
 
     if (player){
+        console.log(player);
+        if (!player.inTurn){
+            return (
+                <div className="options">
+                <PlayerInfo player={player} />
+                </div>)
+        }
         if (!selectedUnit){
             return (
             <div className="options">
                 <PlayerInfo player={player} />
                 <WarriorList warriors={player.warriors} availableWarriors={player.availableWarriors}/>
-                <EndTurnButton player={player}/>
+                <EndTurnButton/>
             </div>)
         } else if(selectedUnit.city){
             return (
                 <div className="options">
                 <PlayerInfo player={player} />
                 <CityOptions city={selectedUnit.city}/>
-                <EndTurnButton player={player}/>
+                <EndTurnButton/>
                 </div>)
         } else if(selectedUnit.warriors){
             return (
                 <div className="options">
                 <PlayerInfo player={player} />
                 <WarriorList warriors={selectedUnit.warriors} availableWarriors={selectedUnit.availableWarriors}/>
-                <EndTurnButton player={player}/>
+                <EndTurnButton/>
                 </div>)
         } else if (selectedUnit.warrior){
             return (
                 <div className="options">
                 <PlayerInfo player={player} />
                 <WarriorOptions warrior={selectedUnit.warrior}/>
-                <EndTurnButton player={player}/>
+                <EndTurnButton/>
                 </div>)
         }
     }

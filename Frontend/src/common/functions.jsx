@@ -1,3 +1,9 @@
+import { useNavigate } from 'react-router-dom';
+import { useContext } from 'react';
+import { AuthContext } from './context';
+import axios from 'axios';
+
+
 function IterateOverArrayAndReturnTileElements(array, x, y){
     let matches = [];
     for (let element of array){
@@ -18,4 +24,23 @@ function GetAvailableWarriors(warriorsArray){
     return availableWarriors;
 }
 
-export {IterateOverArrayAndReturnTileElements, GetAvailableWarriors};
+function CheckIfUserIsLoggedIn(){
+    let navigate = useNavigate();
+    const {token} = useContext(AuthContext);
+    if (!token){
+        navigate('/login');
+    }
+}
+
+async function handleFetch({route, method, token, body=null}){
+    let headers = { headers: { authorization: `Bearer ${token}` } };
+    if (method == 'get'){
+        return await axios.get(`${import.meta.env.VITE_API_URL}/${route}/`, headers);
+    }
+    if (method == "post"){
+        return await axios.post(`${import.meta.env.VITE_API_URL}/${route}/`, body, headers);
+    }
+}
+
+export {IterateOverArrayAndReturnTileElements, GetAvailableWarriors, CheckIfUserIsLoggedIn,
+        handleFetch};

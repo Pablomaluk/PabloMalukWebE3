@@ -1,29 +1,31 @@
+const bcrypt = require('bcrypt');
+
 module.exports = {
-  up: (queryInterface) => queryInterface.bulkInsert('Users', [
+  up: async (queryInterface) => queryInterface.bulkInsert('Users', [
     {
       username: 'John Doe',
-      password: 'password',
+      password: await bcrypt.hash('password', 10),
       email: 'email@example.com',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
     {
       username: 'Jane Doe',
-      password: 'password',
+      password: await bcrypt.hash('password', 10),
       email: 'email2@example2.co',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
     {
       username: 'John Smith',
-      password: 'password',
+      password: await bcrypt.hash('password', 10),
       email: 'email3@example3.cl',
       createdAt: new Date(),
       updatedAt: new Date(),
     },
     {
       username: 'Jane Smith',
-      password: 'password',
+      password: await bcrypt.hash('password', 10),
       email: 'email4@example4.net',
       createdAt: new Date(),
       updatedAt: new Date(),

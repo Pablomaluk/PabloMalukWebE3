@@ -2,22 +2,41 @@ import { useState } from "react"
 import './styles.css';
 import background_image from '../imgs/warrior_background.jpeg';
 import logo from '../imgs/small_logo.png'
+import { useNavigate } from "react-router-dom";
+import axios from 'axios';
 
 
 function FormsAndButtons() {
+  let navigate = useNavigate();
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [email, setEmail] = useState('')
+
+  function postRegister(){
+    axios.post(
+      `${import.meta.env.VITE_API_URL}/signup`,
+      {username, password, email}
+    ).then((response) => {
+      console.log(response);
+    })
+  }
+
   return (
   <>
   <div className="forms-container">
     <div><h4 className="text" style={{marginTop: '25px', alignSelf: 'bottom'}} >Email:</h4></div>
-    <div style={{marginTop: 'auto'}}><input></input></div>
-    <div><h4 className="text">Username:</h4></div>
-    <div><input></input></div>
-    <div><h4 className="text">Password:</h4></div>
-    <div><input></input></div>
-    <div></div>
-    <div>
-         <button className="register-button">Register</button>
+    <div style={{marginTop: 'auto'}}>
+      <input onChange={(e) => setEmail(e.target.value)} ></input>
     </div>
+    <div><h4 className="text">Username:</h4></div>
+    <div><input onChange={(e) => setUsername(e.target.value)} ></input></div>
+    <div><h4 className="text">Password:</h4></div>
+    <div><input type="password" onChange={(e) => setPassword(e.target.value)} ></input></div>
+    <div></div>
+    <div><button className="login-button" onClick={()=>navigate('/login')}>Login</button>
+         <button className="register-button" onClick={()=>postRegister()}>Register</button>
+    </div>
+    
   </div>
   </>
   )

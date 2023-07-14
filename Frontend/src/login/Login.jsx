@@ -1,20 +1,40 @@
-import { useState } from "react"
+import { useState, useContext } from "react"
 import './styles.css';
 import background_image from '../imgs/warrior_background.jpeg';
 import logo from '../imgs/small_logo.png'
+import { useNavigate } from "react-router-dom";
+import axios from 'axios';
+import { AuthContext } from "../common/context";
 
 
 function FormsAndButtons() {
+  let navigate = useNavigate();
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const {token, setToken} = useContext(AuthContext);
+
+  function postLogin(){
+    axios.post(
+      `${import.meta.env.VITE_API_URL}/login`,
+      {username, password}
+    ).then((response) => {
+      const access_token = response.data.access_token;
+      setToken(access_token);
+      navigate('/lobby');
+    }).catch((error) => {
+      console.log(error);
+    })
+  }
   return (
   <>
   <div className="forms-and-buttons-container">
     <div><h4 className="text">Username:</h4></div>
-    <div><input></input></div>
+    <div><input onChange={(e) => setUsername(e.target.value)}></input></div>
     <div><h4 className="text">Password:</h4></div>
-    <div><input></input></div>
+    <div><input type="password" onChange={(e) => setPassword(e.target.value)}></input></div>
     <div></div>
-    <div><button className="login-button">Login</button>
-         <button className="register-button">Register</button>
+    <div><button className="login-button" onClick={()=>postLogin()}>Login</button>
+         <button className="register-button" onClick={()=>navigate('/register')}>Register</button>
     </div>
   </div>
   </>

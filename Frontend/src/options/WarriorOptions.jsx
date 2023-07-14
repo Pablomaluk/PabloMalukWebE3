@@ -1,7 +1,6 @@
 import "./styles.css";
 import { useContext, useState, useEffect } from 'react';
-import axios from 'axios';
-import { SelectedUnitContext, UpdateContext } from "../common/context";
+import { SelectedUnitContext, AuthContext } from "../common/context";
 import up from "../imgs/up.png";
 import down from "../imgs/down.png";
 import left from "../imgs/left.png";
@@ -11,20 +10,22 @@ import downUnavailable from "../imgs/down-unavailable.png";
 import leftUnavailable from "../imgs/left-unavailable.png";
 import rightUnavailable from "../imgs/right-unavailable.png";
 import warriorImg from "../imgs/warrior.png";
+import { handleFetch } from "../common/functions";
 
 
 function WarriorOptions({warrior}){
     const [warriorOptions, setWarriorOptions] = useState(null);
     const {setSelectedUnit} = useContext(SelectedUnitContext);
-    const {updateVar, Update} = useContext(UpdateContext);
+    const {token} = useContext(AuthContext);
     useEffect(() => {
-        axios.get(`${import.meta.env.VITE_API_URL}/warrior/${warrior.id}/options`)
-        .then((response) => {
+        let route = `warrior/${warrior.id}/options`;
+        handleFetch({method: 'get', route, token}
+        ).then((response) => {
             setWarriorOptions(response.data);
         }).catch((error)=>{
           console.log(error);
         });
-      }, [updateVar]);
+      }, []);
 
 
       function UpArrow({warrior, moves}){
@@ -111,14 +112,13 @@ function WarriorOptions({warrior}){
     }
     
     function selectOption({warrior, option}){
-        axios.post(`${import.meta.env.VITE_API_URL}/warrior/${warrior.id}/action`, {
-            action: option
-        }).then(()=>{
+        let route = `warrior/${warrior.id}/action`;
+        let body = {action: option};
+        handleFetch({method: 'post', route, token, body}
+        ).then(()=>{
             setSelectedUnit(null);
-            Update();
         }).catch((error)=>{
             console.log(error);})
-        
     }
 
     if (warriorOptions){

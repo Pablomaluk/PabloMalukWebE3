@@ -10,6 +10,7 @@ import Login from  "./login/Login"
 import About from "./about/About"
 import Game from "./game/Game"
 import Register from "./register/Register"
+import Lobby from "./lobby/Lobby"
 
 function Routing() {
     return(
@@ -18,6 +19,7 @@ function Routing() {
             <Routes>
                 <Route path={'/login'} element={<Login/>}/>
                 <Route path={'/register'} element={<Register/>}/>
+                <Route path={'/lobby'} element={<Lobby/>}/>
                 <Route path={'/game'} element={<Game/>}/>
                 <Route path={'/about'} element={<About/>}/>
                 <Route path={'/instructions'} element={<Instructions/>}/>
