@@ -17,7 +17,7 @@ function FormsAndButtons() {
       `${import.meta.env.VITE_API_URL}/signup`,
       {username, password, email}
     ).then((response) => {
-      console.log(response);
+      navigate('/login')
     })
   }
 

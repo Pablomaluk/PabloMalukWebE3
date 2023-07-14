@@ -17,7 +17,7 @@ router.post("authentication.signup", "/signup", async (ctx) =>{
             throw new Error(`Username ${username} already in use`);
         }
         let hashedPassword = await bcrypt.hash(password, 10);
-        user = await ctx.orm.User.create({email, username, hashedPassword});
+        user = await ctx.orm.User.create({email, username, password: hashedPassword});
         ctx.status = 201;
         ctx.body = {username, email};
     } catch (error) {
