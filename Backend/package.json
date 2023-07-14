@@ -25,7 +25,7 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "build": "yarn && yarn sequelize-cli db:create && yarn sequelize-cli db:migrate",
+    "build": "yarn && yarn sequelize-cli db:migrate",
     "mount": "yarn && yarn sequelize-cli db:create && yarn sequelize-cli db:migrate && yarn sequelize-cli db:seed:all && yarn dev",
     "unmount": "yarn sequelize-cli db:drop",
     "remount": "yarn unmount && yarn mount"
